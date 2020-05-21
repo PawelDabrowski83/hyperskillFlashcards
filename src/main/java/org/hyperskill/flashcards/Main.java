@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -79,8 +78,8 @@ public class Main {
         printMe(messages.getString("commandLine"));
 
         try (Scanner scanner = new Scanner(System.in)) {
-            String input = "";
-            while (scanner.hasNextLine() && !"exit".equalsIgnoreCase(input)) {
+            String input;
+            while (scanner.hasNextLine()) {
                 input = passInputAndLog(scanner).trim().toLowerCase();
                 ActionsEnum yourChoice = ActionsEnum.DEFAULT;
                 if (translateAction.containsKey(input)) {
@@ -116,8 +115,8 @@ public class Main {
                         resetStats(mistakes);
                         break;
                     default:
-                        printMe(messages.getString("commandLine"));
                 }
+                printMe(messages.getString("commandLine"));
             }
         }
     }
@@ -132,7 +131,6 @@ public class Main {
                 printMe(messages.getString("addCard"));
             } else {
                 printMe(messages.getString("cardDuplicate"), card);
-                printMe(messages.getString("commandLine"));
                 return;
             }
             card = passInputAndLog(scanner).trim();
@@ -146,14 +144,12 @@ public class Main {
                 printMe(messages.getString("addDefinition"));
             } else {
                 printMe(messages.getString("definitionDuplicate"), definition);
-                printMe(messages.getString("commandLine"));
                 return;
             }
             definition = passInputAndLog(scanner).trim();
         }
         cards.put(card, definition);
         printMe(messages.getString("cardAdded"), card, definition);
-        printMe(messages.getString("commandLine"));
     }
 
     public static void removeCard(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
@@ -166,14 +162,12 @@ public class Main {
                 printMe(messages.getString("removeCard"));
             } else {
                 printMe(messages.getString("cardNotExisting"), card);
-                printMe(messages.getString("commandLine"));
                 return;
             }
         }
         cards.remove(card);
         mistakes.remove(card);
         printMe(messages.getString("cardRemoved"));
-        printMe(messages.getString("commandLine"));
     }
 
     public static void importCards(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
@@ -181,7 +175,6 @@ public class Main {
         printMe(messages.getString("importCard"));
         String fileName = passInputAndLog(scanner).trim();
         importCardsFromFile(fileName, cards, mistakes);
-        printMe(messages.getString("commandLine"));
     }
 
     protected static void importCardsFromFile(String fileName, Map<String, String> cards, Map<String, Integer> mistakes) {
@@ -213,7 +206,6 @@ public class Main {
         printMe(messages.getString("exportCard"));
         String fileName = passInputAndLog(scanner).trim();
         exportToFile(fileName, cards, mistakes);
-        printMe(messages.getString("commandLine"));
     }
 
     protected static void exportToFile(String fileName, Map<String, String> cards, Map<String, Integer> mistakes) {
@@ -243,7 +235,7 @@ public class Main {
         try {
             number = Integer.parseInt(numberAsString);
         } catch (NumberFormatException e) {
-            printMe("Cannot parse %s", numberAsString);
+            printMe(messages.getString("numberFormatException"), numberAsString);
         }
 
         Map<Integer, String> auxilaryMap = new HashMap<>();
@@ -281,7 +273,6 @@ public class Main {
             number--;
 
         }
-        printMe(messages.getString("commandLine"));
     }
 
     public static void hardestCard(Map<String, Integer> mistakes) {
@@ -301,7 +292,6 @@ public class Main {
                 printMe(messages.getString("hardestCard"), hardestCards.keySet().stream().findFirst().orElse(""), maxMistakes);
             }
         }
-        printMe(messages.getString("commandLine"));
     }
 
     public static void logCards(Scanner scanner) {
@@ -309,7 +299,6 @@ public class Main {
         printMe(messages.getString("log"));
         String fileName = passInputAndLog(scanner).trim();
         logToFile(fileName);
-        printMe(messages.getString("commandLine"));
     }
 
     protected static void logToFile(String fileName) {
@@ -322,7 +311,6 @@ public class Main {
             }
         } catch (IOException e) {
             printMe(messages.getString("fileNotFound"));
-            printMe(messages.getString("commandLine"));
             return;
         }
         printMe(messages.getString("logSaved"));
@@ -338,7 +326,6 @@ public class Main {
     public static void resetStats(Map<String, Integer> mistakes) {
         mistakes.clear();
         printMe(messages.getString("resetStats"));
-        printMe(messages.getString("commandLine"));
     }
 
     protected enum ActionsEnum {
