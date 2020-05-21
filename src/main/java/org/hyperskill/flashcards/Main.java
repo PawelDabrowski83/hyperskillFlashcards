@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,10 +53,23 @@ public class Main {
 
     public static void main(String[] args) {
 
+        String language = "en";
+        String country = "US";
+
         Map<String, String> cards = new HashMap<>();
         Map<String, Integer> mistakes = new HashMap<>();
 
-        printMe(COMMAND_LINE);
+        Locale currentLocale;
+        ResourceBundle messages;
+
+        currentLocale = new Locale(language, country);
+
+        messages = ResourceBundle.getBundle("MessagesBundle", currentLocale);
+//        System.out.println(messages.getString("greetings"));
+//        System.out.println(messages.getString("inquiry"));
+//        System.out.println(messages.getString("farewell"));
+
+        printMe(messages.getString("COMMAND_LINE"));
 
         try (Scanner scanner = new Scanner(System.in)) {
             String input = "";
