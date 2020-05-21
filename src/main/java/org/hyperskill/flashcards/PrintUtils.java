@@ -11,22 +11,22 @@ public class PrintUtils {
     }
 
     public static void printMe(String str1, String str2) {
-        String toPrint = String.format(str1, str2);
+        String toPrint = Main.lineCounter + " | " + String.format(str1, str2);
         printFinalize(toPrint);
     }
 
     public static void printMe(String str, int n) {
-        String toPrint = String.format(str, n);
+        String toPrint = Main.lineCounter + " | " + String.format(str, n);
         printFinalize(toPrint);
     }
 
     public static void printMe(String str1, String str2, String str3) {
-        String toPrint = String.format(str1, str2, str3);
+        String toPrint = Main.lineCounter + " | " + String.format(str1, str2, str3);
         printFinalize(toPrint);
     }
 
     public static void printMe(String str1, String str2, int n) {
-        String toPrint = String.format(str1, str2, n);
+        String toPrint = Main.lineCounter + " | " + String.format(str1, str2, n);
         printFinalize(toPrint);
     }
 

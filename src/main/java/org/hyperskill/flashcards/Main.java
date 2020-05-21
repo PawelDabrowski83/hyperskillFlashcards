@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -20,92 +21,91 @@ import static org.hyperskill.flashcards.PrintUtils.passInputAndLog;
 
 public class Main {
 
-    private static final String COMMAND_LINE = "Input the action (add, remove, import, export, ask, exit," +
-            " log, hardest card, reset stats):";
-    private static final String EXIT_MESSAGE = "Bye bye!";
-    private static final String ADD_CARD = "The card:";
-    private static final String CARD_DUPLICATE = "The card \"%s\" already exists." + System.lineSeparator();
-    private static final String ADD_DEFINITION = "The definition of the card:";
-    private static final String DEFINITION_DUPLICATE = "The definition \"%s\" already exists." + System.lineSeparator();
-    private static final String CARD_ADDED = "The pair (\"%s\":\"%s\") has been added." + System.lineSeparator();
-    private static final String REMOVE_CARD = "The card:";
-    private static final String CARD_REMOVED = "The card has been removed.";
-    private static final String CARD_NOT_EXISTING = "Can't remove \"%s\": there is no such card." + System.lineSeparator();
-    private static final String IMPORT_CARD = "File name: action";
-    private static final String FILE_NOT_FOUND = "File not found.";
-    private static final String IMPORT_SUCCESS = "%d cards have been loaded." + System.lineSeparator();
     private static final Pattern CARD_DEFINITION_PATTERN = Pattern.compile("\"(.+)\":\"(.+)\":\"(\\d+)\"");
-    private static final String EXPORT_CARD = "File name: action";
-    private static final String EXPORT_SUCCESS = "%d cards have been saved." + System.lineSeparator();
-    private static final String ASK_HOW_MANY = "How many times to ask?";
-    private static final String ASK_QUESTION = "Print the definition of \"%s\":" + System.lineSeparator();
-    private static final String ASK_QUESTION_CORRECT = "Correct answer.";
-    private static final String ASK_QUESTION_FAIL = "Wrong answer. The correct one is \"%s\", you've just written the definition of \"%s\"." + System.lineSeparator();
-    private static final String ASK_QUESTION_WRONG = "Wrong answer. The correct one is \"%s\"." + System.lineSeparator();
-    private static final String HARDEST_NONE = "There are no cards with errors.";
-    private static final String HARDEST_CARD = "The hardest card is \"%s\". You have %d errors answering it." + System.lineSeparator();
-    private static final String HARDEST_CARD_MULTIPLE = "The hardest cards are \"%s\". You have %d errors answering them." + System.lineSeparator();
-    private static final String RESET_STATS = "Card statistics has been reset.";
-    private static final String LOG = "File name:";
-    private static final String LOG_SAVED = "The log has been saved.";
+    private static final Pattern IMPORT_COMMAND_PATTERN = Pattern.compile("-import");
+    private static final Pattern EXPORT_COMMAND_PATTERN = Pattern.compile("-export");
+    private static final Pattern FILE_PATTERN = Pattern.compile("\\S+\\.txt");
     protected static int lineCounter = 0;
     protected static List<String> log = new ArrayList<>();
+    protected static String pathToSave = "";
+    protected static ResourceBundle messages = null;
 
     public static void main(String[] args) {
 
         String language = "en";
         String country = "US";
+        Locale currentLocale;
+        currentLocale = new Locale(language, country);
+
+        messages = ResourceBundle.getBundle("MessagesBundle", currentLocale);
+
+        // map ActionMenu to proper language
+        Map<String, ActionsEnum> translateAction = new HashMap<>();
+        translateAction.put(messages.getString("actionAdd"), ActionsEnum.ADD);
+        translateAction.put(messages.getString("actionRemove"), ActionsEnum.REMOVE);
+        translateAction.put(messages.getString("actionAsk"), ActionsEnum.ASK);
+        translateAction.put(messages.getString("actionExit"), ActionsEnum.EXIT);
+        translateAction.put(messages.getString("actionImport"), ActionsEnum.IMPORT);
+        translateAction.put(messages.getString("actionExport"), ActionsEnum.EXPORT);
+        translateAction.put(messages.getString("actionHardestCard"), ActionsEnum.HARDEST_CARD);
+        translateAction.put(messages.getString("actionLog"), ActionsEnum.LOG);
+        translateAction.put(messages.getString("actionResetStats"), ActionsEnum.RESET_STATS);
 
         Map<String, String> cards = new HashMap<>();
         Map<String, Integer> mistakes = new HashMap<>();
 
-        Locale currentLocale;
-        ResourceBundle messages;
+        if (args.length > 0 && args.length % 2 == 0) {
+            for (int i = 0; i < args.length; i += 2) {
+                if (IMPORT_COMMAND_PATTERN.matcher(args[i]).matches() && FILE_PATTERN.matcher(args[i + 1]).matches()) {
+                    importCardsFromFile(args[i + 1], cards, mistakes);
+                }
+                if (EXPORT_COMMAND_PATTERN.matcher(args[i]).matches() && FILE_PATTERN.matcher(args[i + 1]).matches()) {
+                    pathToSave = args[i + 1];
+                }
+            }
+        }
 
-        currentLocale = new Locale(language, country);
-
-        messages = ResourceBundle.getBundle("MessagesBundle", currentLocale);
-//        System.out.println(messages.getString("greetings"));
-//        System.out.println(messages.getString("inquiry"));
-//        System.out.println(messages.getString("farewell"));
-
-        printMe(messages.getString("COMMAND_LINE"));
+        printMe(messages.getString("commandLine"));
 
         try (Scanner scanner = new Scanner(System.in)) {
             String input = "";
             while (scanner.hasNextLine() && !"exit".equalsIgnoreCase(input)) {
                 input = passInputAndLog(scanner).trim().toLowerCase();
+                ActionsEnum yourChoice = ActionsEnum.DEFAULT;
+                if (translateAction.containsKey(input)) {
+                    yourChoice = translateAction.get(input);
+                }
 
-                switch (input) {
-                    case "add":
+                switch (yourChoice) {
+                    case ADD:
                         addCard(scanner, cards);
                         break;
-                    case "remove":
+                    case REMOVE:
                         removeCard(scanner, cards, mistakes);
                         break;
-                    case "import":
+                    case IMPORT:
                         importCards(scanner, cards, mistakes);
                         break;
-                    case "export":
+                    case EXPORT:
                         exportCards(scanner, cards, mistakes);
                         break;
-                    case "ask":
+                    case ASK:
                         askQuestion(scanner, cards, mistakes);
                         break;
-                    case "exit":
-                        System.out.println(EXIT_MESSAGE);
+                    case EXIT:
+                        exitAndPossiblySaveToFile(cards, mistakes);
                         return;
-                    case "log":
-                        logToFile(scanner);
+                    case LOG:
+                        logCards(scanner);
                         break;
-                    case "hardest card":
+                    case HARDEST_CARD:
                         hardestCard(mistakes);
                         break;
-                    case "reset stats":
+                    case RESET_STATS:
                         resetStats(mistakes);
                         break;
                     default:
-                        printMe(COMMAND_LINE);
+                        printMe(messages.getString("commandLine"));
                 }
             }
         }
@@ -113,64 +113,67 @@ public class Main {
 
     public static void addCard(Scanner scanner, Map<String, String> cards) {
 
-        printMe(ADD_CARD);
+        printMe(messages.getString("addCard"));
         String card = passInputAndLog(scanner).trim();
 
         while (card.isEmpty() || cards.containsKey(card)) {
             if (card.isEmpty()) {
-                printMe(ADD_CARD);
+                printMe(messages.getString("addCard"));
             } else {
-                printMe(CARD_DUPLICATE, card);
-                printMe(COMMAND_LINE);
+                printMe(messages.getString("cardDuplicate"), card);
+                printMe(messages.getString("commandLine"));
                 return;
             }
             card = passInputAndLog(scanner).trim();
         }
 
-        printMe(ADD_DEFINITION);
+        printMe(messages.getString("addDefinition"));
         String definition = passInputAndLog(scanner).trim();
 
         if (definition.isEmpty() || cards.containsValue(definition)) {
             if (definition.isEmpty()) {
-                printMe(ADD_DEFINITION);
+                printMe(messages.getString("addDefinition"));
             } else {
-                printMe(DEFINITION_DUPLICATE, definition);
-                printMe(COMMAND_LINE);
+                printMe(messages.getString("definitionDuplicate"), definition);
+                printMe(messages.getString("commandLine"));
                 return;
             }
             definition = passInputAndLog(scanner).trim();
         }
         cards.put(card, definition);
-        printMe(CARD_ADDED, card, definition);
-        printMe(COMMAND_LINE);
+        printMe(messages.getString("cardAdded"), card, definition);
+        printMe(messages.getString("commandLine"));
     }
 
     public static void removeCard(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
 
-        printMe(REMOVE_CARD);
+        printMe(messages.getString("removeCard"));
         String card = passInputAndLog(scanner).trim();
 
         if (card.isEmpty() || !cards.containsKey(card)) {
             if (card.isEmpty()) {
-                printMe(REMOVE_CARD);
+                printMe(messages.getString("removeCard"));
             } else {
-                printMe(CARD_NOT_EXISTING, card);
-                printMe(COMMAND_LINE);
+                printMe(messages.getString("cardNotExisting"), card);
+                printMe(messages.getString("commandLine"));
                 return;
             }
-
         }
         cards.remove(card);
         mistakes.remove(card);
-        printMe(CARD_REMOVED);
-        printMe(COMMAND_LINE);
+        printMe(messages.getString("cardRemoved"));
+        printMe(messages.getString("commandLine"));
     }
 
     public static void importCards(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
 
-        printMe(IMPORT_CARD);
+        printMe(messages.getString("importCard"));
         String fileName = passInputAndLog(scanner).trim();
+        importCardsFromFile(fileName, cards, mistakes);
+        printMe(messages.getString("commandLine"));
+    }
 
+    protected static void importCardsFromFile(String fileName, Map<String, String> cards, Map<String, Integer> mistakes) {
         File file = new File(fileName);
         int count = 0;
 
@@ -187,18 +190,22 @@ public class Main {
                     count++;
                 }
             }
-            printMe(IMPORT_SUCCESS, count);
+            printMe(messages.getString("importSuccess"), count);
         } catch (IOException e) {
-            printMe(FILE_NOT_FOUND);
+            printMe(messages.getString("fileNotFound"));
         }
-        printMe(COMMAND_LINE);
+
     }
 
     public static void exportCards(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
 
-        printMe(EXPORT_CARD);
+        printMe(messages.getString("exportCard"));
         String fileName = passInputAndLog(scanner).trim();
+        exportToFile(fileName, cards, mistakes);
+        printMe(messages.getString("commandLine"));
+    }
 
+    protected static void exportToFile(String fileName, Map<String, String> cards, Map<String, Integer> mistakes) {
         File file = new File(fileName);
         int count = 0;
 
@@ -210,16 +217,15 @@ public class Main {
                 count++;
             }
         } catch (IOException e) {
-            printMe(FILE_NOT_FOUND);
+            printMe(messages.getString("fileNotFound"));
             return;
         }
-        printMe(EXPORT_SUCCESS, count);
-        printMe(COMMAND_LINE);
+        printMe(messages.getString("exportSuccess"), count);
     }
 
     public static void askQuestion(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
 
-        printMe(ASK_HOW_MANY);
+        printMe(messages.getString("askHowMany"));
 
         String numberAsString = passInputAndLog(scanner).trim();
         int number = 0;
@@ -244,11 +250,11 @@ public class Main {
             String cardEntry = auxilaryMap.get(randomized);
             String definitionEntry = cards.get(cardEntry);
 
-            printMe(ASK_QUESTION, cardEntry);
+            printMe(messages.getString("askQuestion"), cardEntry);
             String answer = passInputAndLog(scanner).trim();
 
             if (definitionEntry.equalsIgnoreCase(answer)) {
-                printMe(ASK_QUESTION_CORRECT);
+                printMe(messages.getString("askQuestionCorrect"));
             } else {
                 mistakes.put(cardEntry, (mistakes.getOrDefault(cardEntry, 0) + 1));
                 if (cards.containsValue(answer)) {
@@ -256,15 +262,15 @@ public class Main {
                             .filter(n -> n.getValue().equalsIgnoreCase(answer))
                             .map(Map.Entry::getKey)
                             .collect(Collectors.joining());
-                    printMe(ASK_QUESTION_FAIL, definitionEntry, cardFoundByDefinition);
+                    printMe(messages.getString("askQuestionMistakenWithAnother"), definitionEntry, cardFoundByDefinition);
                 } else {
-                    printMe(ASK_QUESTION_WRONG, definitionEntry);
+                    printMe(messages.getString("askQuestionWrong"), definitionEntry);
                 }
             }
             number--;
 
         }
-        printMe(COMMAND_LINE);
+        printMe(messages.getString("commandLine"));
     }
 
     public static void hardestCard(Map<String, Integer> mistakes) {
@@ -272,25 +278,30 @@ public class Main {
         int maxMistakes = mistakes.values().stream().max(Comparator.naturalOrder()).orElse(0);
 
         if (maxMistakes == 0) {
-            printMe(HARDEST_NONE);
+            printMe(messages.getString("hardestNone"));
         } else {
             Map<String, Integer> hardestCards = mistakes.entrySet().stream()
                     .filter(e -> e.getValue().equals(maxMistakes))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             if (hardestCards.size() > 1) {
                 String hardestCardNames = String.join("\", \"", hardestCards.keySet());
-                printMe(HARDEST_CARD_MULTIPLE, hardestCardNames, maxMistakes);
+                printMe(messages.getString("hardestCardManyOfThem"), hardestCardNames, maxMistakes);
             } else {
-                printMe(HARDEST_CARD, hardestCards.keySet().stream().findFirst().orElse(""), maxMistakes);
+                printMe(messages.getString("hardestCard"), hardestCards.keySet().stream().findFirst().orElse(""), maxMistakes);
             }
         }
-        printMe(COMMAND_LINE);
+        printMe(messages.getString("commandLine"));
     }
 
-    public static void logToFile(Scanner scanner) {
+    public static void logCards(Scanner scanner) {
 
-        printMe(LOG);
+        printMe(messages.getString("log"));
         String fileName = passInputAndLog(scanner).trim();
+        logToFile(fileName);
+        printMe(messages.getString("commandLine"));
+    }
+
+    protected static void logToFile(String fileName) {
         File file = new File(fileName);
 
         try (FileWriter fileWriter = new FileWriter(file)) {
@@ -299,19 +310,28 @@ public class Main {
                 fileWriter.flush();
             }
         } catch (IOException e) {
-            printMe(FILE_NOT_FOUND);
-            printMe(COMMAND_LINE);
+            printMe(messages.getString("fileNotFound"));
+            printMe(messages.getString("commandLine"));
             return;
         }
-        printMe(LOG_SAVED);
-        printMe(COMMAND_LINE);
+        printMe(messages.getString("logSaved"));
+    }
+
+    public static void exitAndPossiblySaveToFile(Map<String, String> cards, Map<String, Integer> mistakes) {
+        printMe(messages.getString("exitMessage"));
+        if (!pathToSave.isEmpty()) {
+            exportToFile(pathToSave, cards, mistakes);
+        }
     }
 
     public static void resetStats(Map<String, Integer> mistakes) {
         mistakes.clear();
-        printMe(RESET_STATS);
-        printMe(COMMAND_LINE);
+        printMe(messages.getString("resetStats"));
+        printMe(messages.getString("commandLine"));
     }
 
+    protected enum ActionsEnum {
+        ADD, REMOVE, IMPORT, EXPORT, ASK, EXIT, LOG, HARDEST_CARD, RESET_STATS, DEFAULT
+    }
 
 }
