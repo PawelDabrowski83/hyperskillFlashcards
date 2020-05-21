@@ -25,15 +25,26 @@ public class Main {
     private static final Pattern IMPORT_COMMAND_PATTERN = Pattern.compile("-import");
     private static final Pattern EXPORT_COMMAND_PATTERN = Pattern.compile("-export");
     private static final Pattern FILE_PATTERN = Pattern.compile("\\S+\\.txt");
+    private static final Pattern COVERED_LANGUAGES = Pattern.compile("^pl$|^en$");
+    private static final Pattern COVERED_COUNTRIES = Pattern.compile("^PL$|^US$");
     protected static int lineCounter = 0;
     protected static List<String> log = new ArrayList<>();
     protected static String pathToSave = "";
     protected static ResourceBundle messages = null;
 
     public static void main(String[] args) {
+        String language = "pl";
+        String country = "PL";
 
-        String language = "en";
-        String country = "US";
+        if (args.length > 0 && args.length % 2 == 0) {
+            for (int i = 0; i < args.length; i += 2) {
+                if (COVERED_LANGUAGES.matcher(args[i]).matches() && COVERED_COUNTRIES.matcher(args[i + 1]).matches()) {
+                    language = args[i];
+                    country = args[i + 1];
+                }
+            }
+        }
+
         Locale currentLocale;
         currentLocale = new Locale(language, country);
 
