@@ -3,10 +3,8 @@ package org.hyperskill.flashcards;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
@@ -17,11 +15,10 @@ import java.util.stream.Collectors;
 import static org.hyperskill.flashcards.PrintUtils.printMe;
 import static org.hyperskill.flashcards.PrintUtils.passInputAndLog;
 import static org.hyperskill.flashcards.PatternConfiguration.*;
+import static org.hyperskill.flashcards.SimpleLogger.*;
 
 public class Main {
-    protected static int lineCounter = 0;
-    protected static List<String> log = new ArrayList<>();
-    protected static String pathToSave = "";
+
     protected static ResourceBundle messages = null;
 
     public static void main(String[] args) {
