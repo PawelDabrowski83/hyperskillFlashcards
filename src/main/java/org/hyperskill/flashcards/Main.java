@@ -3,32 +3,22 @@ package org.hyperskill.flashcards;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import static org.hyperskill.flashcards.PrintUtils.printMe;
 import static org.hyperskill.flashcards.PrintUtils.passInputAndLog;
+import static org.hyperskill.flashcards.PatternConfiguration.*;
+import static org.hyperskill.flashcards.SimpleLogger.*;
 
 public class Main {
 
-    private static final Pattern CARD_DEFINITION_PATTERN = Pattern.compile("\"(.+)\":\"(.+)\":\"(\\d+)\"");
-    private static final Pattern IMPORT_COMMAND_PATTERN = Pattern.compile("-import");
-    private static final Pattern EXPORT_COMMAND_PATTERN = Pattern.compile("-export");
-    private static final Pattern FILE_PATTERN = Pattern.compile("\\S+\\.txt");
-    private static final Pattern COVERED_LANGUAGES = Pattern.compile("^pl$|^en$");
-    private static final Pattern COVERED_COUNTRIES = Pattern.compile("^PL$|^US$");
-    protected static int lineCounter = 0;
-    protected static List<String> log = new ArrayList<>();
-    protected static String pathToSave = "";
     protected static ResourceBundle messages = null;
 
     public static void main(String[] args) {

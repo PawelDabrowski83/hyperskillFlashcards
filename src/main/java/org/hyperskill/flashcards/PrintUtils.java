@@ -1,8 +1,8 @@
 package org.hyperskill.flashcards;
 
 import java.util.Scanner;
-import static org.hyperskill.flashcards.Main.log;
-import static org.hyperskill.flashcards.Main.lineCounter;
+import static org.hyperskill.flashcards.SimpleLogger.log;
+import static org.hyperskill.flashcards.SimpleLogger.lineCounter;
 
 public class PrintUtils {
 
@@ -38,7 +38,7 @@ public class PrintUtils {
     public static void printFinalize (String str) {
         log.add(str);
         System.out.println(str);
-        Main.lineCounter++;
+        lineCounter++;
     }
 
     public static String passInputAndLog(Scanner scanner) {
