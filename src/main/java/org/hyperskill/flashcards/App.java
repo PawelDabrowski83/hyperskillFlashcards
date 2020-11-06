@@ -16,26 +16,14 @@ import static org.hyperskill.flashcards.SimpleLogger.pathToSave;
 
 public class App {
 
-    protected static ResourceBundle messages = null;
+    protected static ResourceBundle messages;
+
+    public App(String[] args){
+        LocaleConfigurator localeConfigurator = new LocaleConfigurator();
+        messages = localeConfigurator.setLocale(args);
+    }
 
     public void play(String[] args) {
-        String language = "pl";
-        String country = "PL";
-
-        if (args.length > 0 && args.length % 2 == 0) {
-            for (int i = 0; i < args.length; i += 2) {
-                if (COVERED_LANGUAGES.matcher(args[i]).matches() && COVERED_COUNTRIES.matcher(args[i + 1]).matches()) {
-                    language = args[i];
-                    country = args[i + 1];
-                }
-            }
-        }
-
-        Locale currentLocale;
-        currentLocale = new Locale(language, country);
-
-        messages = ResourceBundle.getBundle("MessagesBundle", currentLocale);
-
         // map ActionMenu to proper language
         Map<String, ActionsEnum> translateAction = new HashMap<>();
         translateAction.put(messages.getString("actionAdd"), ActionsEnum.ADD);
@@ -108,7 +96,7 @@ public class App {
         }
     }
 
-    public static void addCard(Scanner scanner, Map<String, String> cards) {
+    public void addCard(Scanner scanner, Map<String, String> cards) {
 
         printMe(messages.getString("addCard"));
         String card = passInputAndLog(scanner).trim();
@@ -139,7 +127,7 @@ public class App {
         printMe(messages.getString("cardAdded"), card, definition);
     }
 
-    public static void removeCard(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
+    public void removeCard(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
 
         printMe(messages.getString("removeCard"));
         String card = passInputAndLog(scanner).trim();
@@ -157,14 +145,14 @@ public class App {
         printMe(messages.getString("cardRemoved"));
     }
 
-    public static void importCards(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
+    public void importCards(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
 
         printMe(messages.getString("importCard"));
         String fileName = passInputAndLog(scanner).trim();
         importCardsFromFile(fileName, cards, mistakes);
     }
 
-    protected static void importCardsFromFile(String fileName, Map<String, String> cards, Map<String, Integer> mistakes) {
+    protected void importCardsFromFile(String fileName, Map<String, String> cards, Map<String, Integer> mistakes) {
         File file = new File(fileName);
         int count = 0;
 
@@ -188,14 +176,14 @@ public class App {
 
     }
 
-    public static void exportCards(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
+    public void exportCards(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
 
         printMe(messages.getString("exportCard"));
         String fileName = passInputAndLog(scanner).trim();
         exportToFile(fileName, cards, mistakes);
     }
 
-    protected static void exportToFile(String fileName, Map<String, String> cards, Map<String, Integer> mistakes) {
+    protected void exportToFile(String fileName, Map<String, String> cards, Map<String, Integer> mistakes) {
         File file = new File(fileName);
         int count = 0;
 
@@ -213,7 +201,7 @@ public class App {
         printMe(messages.getString("exportSuccess"), count);
     }
 
-    public static void askQuestion(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
+    public void askQuestion(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
 
         printMe(messages.getString("askHowMany"));
 
@@ -262,7 +250,7 @@ public class App {
         }
     }
 
-    public static void hardestCard(Map<String, Integer> mistakes) {
+    public void hardestCard(Map<String, Integer> mistakes) {
 
         int maxMistakes = mistakes.values().stream().max(Comparator.naturalOrder()).orElse(0);
 
@@ -281,14 +269,14 @@ public class App {
         }
     }
 
-    public static void logCards(Scanner scanner) {
+    public void logCards(Scanner scanner) {
 
         printMe(messages.getString("log"));
         String fileName = passInputAndLog(scanner).trim();
         logToFile(fileName);
     }
 
-    protected static void logToFile(String fileName) {
+    protected void logToFile(String fileName) {
         File file = new File(fileName);
 
         try (FileWriter fileWriter = new FileWriter(file)) {
@@ -303,14 +291,14 @@ public class App {
         printMe(messages.getString("logSaved"));
     }
 
-    public static void exitAndPossiblySaveToFile(Map<String, String> cards, Map<String, Integer> mistakes) {
+    public void exitAndPossiblySaveToFile(Map<String, String> cards, Map<String, Integer> mistakes) {
         printMe(messages.getString("exitMessage"));
         if (!pathToSave.isEmpty()) {
             exportToFile(pathToSave, cards, mistakes);
         }
     }
 
-    public static void resetStats(Map<String, Integer> mistakes) {
+    public void resetStats(Map<String, Integer> mistakes) {
         mistakes.clear();
         printMe(messages.getString("resetStats"));
     }
