@@ -17,24 +17,16 @@ import static org.hyperskill.flashcards.SimpleLogger.pathToSave;
 public class App {
 
     protected static ResourceBundle messages;
+    protected final LocaleConfigurator localeConfigurator = new LocaleConfigurator();
 
     public App(String[] args){
-        LocaleConfigurator localeConfigurator = new LocaleConfigurator();
         messages = localeConfigurator.setLocale(args);
     }
 
     public void play(String[] args) {
         // map ActionMenu to proper language
-        Map<String, ActionsEnum> translateAction = new HashMap<>();
-        translateAction.put(messages.getString("actionAdd"), ActionsEnum.ADD);
-        translateAction.put(messages.getString("actionRemove"), ActionsEnum.REMOVE);
-        translateAction.put(messages.getString("actionAsk"), ActionsEnum.ASK);
-        translateAction.put(messages.getString("actionExit"), ActionsEnum.EXIT);
-        translateAction.put(messages.getString("actionImport"), ActionsEnum.IMPORT);
-        translateAction.put(messages.getString("actionExport"), ActionsEnum.EXPORT);
-        translateAction.put(messages.getString("actionHardestCard"), ActionsEnum.HARDEST_CARD);
-        translateAction.put(messages.getString("actionLog"), ActionsEnum.LOG);
-        translateAction.put(messages.getString("actionResetStats"), ActionsEnum.RESET_STATS);
+        Map<String, ActionsEnum> translateAction = localeConfigurator.getTranslatedMenuItems(messages);
+
 
         Map<String, String> cards = new HashMap<>();
         Map<String, Integer> mistakes = new HashMap<>();

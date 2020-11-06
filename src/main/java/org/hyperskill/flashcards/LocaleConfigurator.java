@@ -1,6 +1,8 @@
 package org.hyperskill.flashcards;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -24,5 +26,19 @@ public class LocaleConfigurator {
         Locale currentLocale = new Locale(language, country);
 
         return ResourceBundle.getBundle("MessagesBundle", currentLocale);
+    }
+
+    protected Map<String, ActionsEnum> getTranslatedMenuItems(ResourceBundle messages){
+        Map<String, ActionsEnum> translateAction = new HashMap<>();
+        translateAction.put(messages.getString("actionAdd"), ActionsEnum.ADD);
+        translateAction.put(messages.getString("actionRemove"), ActionsEnum.REMOVE);
+        translateAction.put(messages.getString("actionAsk"), ActionsEnum.ASK);
+        translateAction.put(messages.getString("actionExit"), ActionsEnum.EXIT);
+        translateAction.put(messages.getString("actionImport"), ActionsEnum.IMPORT);
+        translateAction.put(messages.getString("actionExport"), ActionsEnum.EXPORT);
+        translateAction.put(messages.getString("actionHardestCard"), ActionsEnum.HARDEST_CARD);
+        translateAction.put(messages.getString("actionLog"), ActionsEnum.LOG);
+        translateAction.put(messages.getString("actionResetStats"), ActionsEnum.RESET_STATS);
+        return translateAction;
     }
 }
