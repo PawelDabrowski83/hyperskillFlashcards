@@ -17,27 +17,17 @@ import static org.hyperskill.flashcards.SimpleLogger.pathToSave;
 public class App {
 
     protected static ResourceBundle messages;
+    protected final LocaleConfigurator localeConfigurator = new LocaleConfigurator();
+    private final Map<String, ActionsEnum> translateActions;
+    private final Map<String, String> cards = new HashMap<>();
+    private final Map<String, Integer> mistakes = new HashMap<>();
 
     public App(String[] args){
-        LocaleConfigurator localeConfigurator = new LocaleConfigurator();
         messages = localeConfigurator.setLocale(args);
+        translateActions = localeConfigurator.getTranslatedMenuItems(messages);
     }
 
     public void play(String[] args) {
-        // map ActionMenu to proper language
-        Map<String, ActionsEnum> translateAction = new HashMap<>();
-        translateAction.put(messages.getString("actionAdd"), ActionsEnum.ADD);
-        translateAction.put(messages.getString("actionRemove"), ActionsEnum.REMOVE);
-        translateAction.put(messages.getString("actionAsk"), ActionsEnum.ASK);
-        translateAction.put(messages.getString("actionExit"), ActionsEnum.EXIT);
-        translateAction.put(messages.getString("actionImport"), ActionsEnum.IMPORT);
-        translateAction.put(messages.getString("actionExport"), ActionsEnum.EXPORT);
-        translateAction.put(messages.getString("actionHardestCard"), ActionsEnum.HARDEST_CARD);
-        translateAction.put(messages.getString("actionLog"), ActionsEnum.LOG);
-        translateAction.put(messages.getString("actionResetStats"), ActionsEnum.RESET_STATS);
-
-        Map<String, String> cards = new HashMap<>();
-        Map<String, Integer> mistakes = new HashMap<>();
 
         if (args.length > 0 && args.length % 2 == 0) {
             for (int i = 0; i < args.length; i += 2) {
@@ -57,8 +47,8 @@ public class App {
             while (scanner.hasNextLine()) {
                 input = passInputAndLog(scanner).trim().toLowerCase();
                 ActionsEnum yourChoice = ActionsEnum.DEFAULT;
-                if (translateAction.containsKey(input)) {
-                    yourChoice = translateAction.get(input);
+                if (translateActions.containsKey(input)) {
+                    yourChoice = translateActions.get(input);
                 }
 
                 switch (yourChoice) {
