@@ -40,6 +40,10 @@ public class App {
             }
         }
 
+        acceptCommands();
+    }
+
+    protected void acceptCommands(){
         printMe(messages.getString("commandLine"));
 
         try (Scanner scanner = new Scanner(System.in)) {
