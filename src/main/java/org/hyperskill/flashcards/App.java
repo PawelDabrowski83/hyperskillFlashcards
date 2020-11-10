@@ -69,8 +69,7 @@ public class App {
     }
 
     private ActionsEnum getNextUserAction() {
-        String input;
-        input = passInputAndLog(scannerWrapper).toLowerCase();
+        String input = passInputAndLog(scannerWrapper).toLowerCase();
         ActionsEnum yourChoice = ActionsEnum.DEFAULT;
         if (translateActions.containsKey(input)) {
             yourChoice = translateActions.get(input);
