@@ -1,7 +1,5 @@
 package org.hyperskill.flashcards.configuration;
 
-import org.hyperskill.flashcards.ActionsEnum;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;

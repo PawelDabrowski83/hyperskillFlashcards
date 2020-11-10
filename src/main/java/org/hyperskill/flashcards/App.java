@@ -1,5 +1,6 @@
 package org.hyperskill.flashcards;
 
+import org.hyperskill.flashcards.configuration.ActionsEnum;
 import org.hyperskill.flashcards.configuration.CommandLineConfigurator;
 import org.hyperskill.flashcards.configuration.LocaleConfigurator;
 
