@@ -1,7 +1,9 @@
-package org.hyperskill.flashcards;
+package org.hyperskill.flashcards.configuration;
 
-import static org.hyperskill.flashcards.PatternConfiguration.*;
-import static org.hyperskill.flashcards.PatternConfiguration.FILE_PATTERN;
+import org.hyperskill.flashcards.App;
+
+import static org.hyperskill.flashcards.configuration.PatternConfiguration.*;
+import static org.hyperskill.flashcards.configuration.PatternConfiguration.FILE_PATTERN;
 import static org.hyperskill.flashcards.SimpleLogger.pathToSave;
 
 public class CommandLineConfigurator {

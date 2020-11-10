@@ -1,5 +1,8 @@
 package org.hyperskill.flashcards;
 
+import org.hyperskill.flashcards.configuration.CommandLineConfigurator;
+import org.hyperskill.flashcards.configuration.LocaleConfigurator;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,8 +10,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import static org.hyperskill.flashcards.PatternConfiguration.*;
-import static org.hyperskill.flashcards.PatternConfiguration.CARD_DEFINITION_PATTERN;
+import static org.hyperskill.flashcards.configuration.PatternConfiguration.CARD_DEFINITION_PATTERN;
 import static org.hyperskill.flashcards.PrintUtils.passInputAndLog;
 import static org.hyperskill.flashcards.PrintUtils.printMe;
 import static org.hyperskill.flashcards.SimpleLogger.log;
@@ -146,7 +148,7 @@ public class App {
         importCardsFromFile(fileName);
     }
 
-    protected void importCardsFromFile(String fileName) {
+    public void importCardsFromFile(String fileName) {
         File file = new File(fileName);
         int count = 0;
 
