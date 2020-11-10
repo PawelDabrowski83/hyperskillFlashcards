@@ -18,6 +18,7 @@ public class App {
 
     protected static ResourceBundle messages;
     protected final LocaleConfigurator localeConfigurator = new LocaleConfigurator();
+    protected final CommandLineConfigurator commandLineConfigurator;
     private final Map<String, ActionsEnum> translateActions;
     private final Map<String, String> cards = new HashMap<>();
     private final Map<String, Integer> mistakes = new HashMap<>();
@@ -27,20 +28,11 @@ public class App {
         messages = localeConfigurator.setLocale(args);
         translateActions = localeConfigurator.getTranslatedMenuItems(messages);
         scannerWrapper = new ScannerWrapper(new Scanner(System.in));
+        commandLineConfigurator = new CommandLineConfigurator();
     }
 
     public void play(String[] args) {
-
-        if (args.length > 0 && args.length % 2 == 0) {
-            for (int i = 0; i < args.length; i += 2) {
-                if (IMPORT_COMMAND_PATTERN.matcher(args[i]).matches() && FILE_PATTERN.matcher(args[i + 1]).matches()) {
-                    importCardsFromFile(args[i + 1]);
-                }
-                if (EXPORT_COMMAND_PATTERN.matcher(args[i]).matches() && FILE_PATTERN.matcher(args[i + 1]).matches()) {
-                    pathToSave = args[i + 1];
-                }
-            }
-        }
+        commandLineConfigurator.configure(args, this);
         acceptCommands();
     }
 
@@ -48,13 +40,8 @@ public class App {
         printMe(messages.getString("commandLine"));
 
         try (scannerWrapper) {
-            String input;
             while (scannerWrapper.hasNextLine()) {
-                input = passInputAndLog(scannerWrapper).toLowerCase();
-                ActionsEnum yourChoice = ActionsEnum.DEFAULT;
-                if (translateActions.containsKey(input)) {
-                    yourChoice = translateActions.get(input);
-                }
+                ActionsEnum yourChoice = getNextUserAction();
 
                 switch (yourChoice) {
                     case ADD:
@@ -91,6 +78,16 @@ public class App {
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private ActionsEnum getNextUserAction() {
+        String input;
+        input = passInputAndLog(scannerWrapper).toLowerCase();
+        ActionsEnum yourChoice = ActionsEnum.DEFAULT;
+        if (translateActions.containsKey(input)) {
+            yourChoice = translateActions.get(input);
+        }
+        return yourChoice;
     }
 
     public void addCard() {
