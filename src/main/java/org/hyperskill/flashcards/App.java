@@ -3,6 +3,7 @@ package org.hyperskill.flashcards;
 import org.hyperskill.flashcards.configuration.ActionsEnum;
 import org.hyperskill.flashcards.configuration.CommandLineConfigurator;
 import org.hyperskill.flashcards.configuration.LocaleConfigurator;
+import org.hyperskill.flashcards.utils.ScannerWrapper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -12,10 +13,10 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static org.hyperskill.flashcards.configuration.PatternConfiguration.CARD_DEFINITION_PATTERN;
-import static org.hyperskill.flashcards.PrintUtils.passInputAndLog;
-import static org.hyperskill.flashcards.PrintUtils.printMe;
-import static org.hyperskill.flashcards.SimpleLogger.log;
-import static org.hyperskill.flashcards.SimpleLogger.pathToSave;
+import static org.hyperskill.flashcards.utils.PrintUtils.passInputAndLog;
+import static org.hyperskill.flashcards.utils.PrintUtils.printMe;
+import static org.hyperskill.flashcards.utils.SimpleLogger.log;
+import static org.hyperskill.flashcards.utils.SimpleLogger.pathToSave;
 
 public class App {
 

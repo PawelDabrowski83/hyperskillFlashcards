@@ -1,4 +1,4 @@
-package org.hyperskill.flashcards;
+package org.hyperskill.flashcards.utils;
 
 import java.util.Scanner;
 
