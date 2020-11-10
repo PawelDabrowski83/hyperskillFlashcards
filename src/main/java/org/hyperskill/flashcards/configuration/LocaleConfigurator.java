@@ -10,7 +10,7 @@ public class LocaleConfigurator {
     protected static final Pattern COVERED_LANGUAGES = Pattern.compile("^pl$|^en$");
     protected static final Pattern COVERED_COUNTRIES = Pattern.compile("^PL$|^US$");
 
-    protected ResourceBundle setLocale(String[] args){
+    public ResourceBundle setLocale(String[] args){
         String language = "pl";
         String country = "PL";
 
@@ -28,7 +28,7 @@ public class LocaleConfigurator {
         return ResourceBundle.getBundle("MessagesBundle", currentLocale);
     }
 
-    protected Map<String, ActionsEnum> getTranslatedMenuItems(ResourceBundle messages){
+    public Map<String, ActionsEnum> getTranslatedMenuItems(ResourceBundle messages){
         Map<String, ActionsEnum> translateAction = new HashMap<>();
         translateAction.put(messages.getString("actionAdd"), ActionsEnum.ADD);
         translateAction.put(messages.getString("actionRemove"), ActionsEnum.REMOVE);

@@ -48,34 +48,18 @@ public class App {
                 ActionsEnum yourChoice = getNextUserAction();
 
                 switch (yourChoice) {
-                    case ADD:
-                        addCard();
-                        break;
-                    case REMOVE:
-                        removeCard();
-                        break;
-                    case IMPORT:
-                        importCards();
-                        break;
-                    case EXPORT:
-                        exportCards();
-                        break;
-                    case ASK:
-                        askQuestion();
-                        break;
-                    case EXIT:
+                    case ADD -> addCard();
+                    case REMOVE -> removeCard();
+                    case IMPORT -> importCards();
+                    case EXPORT -> exportCards();
+                    case ASK -> askQuestion();
+                    case EXIT -> {
                         exitAndPossiblySaveToFile();
                         return;
-                    case LOG:
-                        logCards();
-                        break;
-                    case HARDEST_CARD:
-                        hardestCard();
-                        break;
-                    case RESET_STATS:
-                        resetStats();
-                        break;
-                    default:
+                    }
+                    case LOG -> logCards();
+                    case HARDEST_CARD -> hardestCard();
+                    case RESET_STATS -> resetStats();
                 }
                 printMe(messages.getString("commandLine"));
             }
