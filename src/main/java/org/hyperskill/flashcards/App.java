@@ -21,10 +21,12 @@ public class App {
     private final Map<String, ActionsEnum> translateActions;
     private final Map<String, String> cards = new HashMap<>();
     private final Map<String, Integer> mistakes = new HashMap<>();
+    private final ScannerWrapper scannerWrapper;
 
     public App(String[] args){
         messages = localeConfigurator.setLocale(args);
         translateActions = localeConfigurator.getTranslatedMenuItems(messages);
+        scannerWrapper = new ScannerWrapper(new Scanner(System.in));
     }
 
     public void play(String[] args) {
@@ -32,24 +34,23 @@ public class App {
         if (args.length > 0 && args.length % 2 == 0) {
             for (int i = 0; i < args.length; i += 2) {
                 if (IMPORT_COMMAND_PATTERN.matcher(args[i]).matches() && FILE_PATTERN.matcher(args[i + 1]).matches()) {
-                    importCardsFromFile(args[i + 1], cards, mistakes);
+                    importCardsFromFile(args[i + 1]);
                 }
                 if (EXPORT_COMMAND_PATTERN.matcher(args[i]).matches() && FILE_PATTERN.matcher(args[i + 1]).matches()) {
                     pathToSave = args[i + 1];
                 }
             }
         }
-
         acceptCommands();
     }
 
     protected void acceptCommands(){
         printMe(messages.getString("commandLine"));
 
-        try (Scanner scanner = new Scanner(System.in)) {
+        try (scannerWrapper) {
             String input;
-            while (scanner.hasNextLine()) {
-                input = passInputAndLog(scanner).trim().toLowerCase();
+            while (scannerWrapper.hasNextLine()) {
+                input = passInputAndLog(scannerWrapper).toLowerCase();
                 ActionsEnum yourChoice = ActionsEnum.DEFAULT;
                 if (translateActions.containsKey(input)) {
                     yourChoice = translateActions.get(input);
@@ -57,43 +58,45 @@ public class App {
 
                 switch (yourChoice) {
                     case ADD:
-                        addCard(scanner, cards);
+                        addCard();
                         break;
                     case REMOVE:
-                        removeCard(scanner, cards, mistakes);
+                        removeCard();
                         break;
                     case IMPORT:
-                        importCards(scanner, cards, mistakes);
+                        importCards();
                         break;
                     case EXPORT:
-                        exportCards(scanner, cards, mistakes);
+                        exportCards();
                         break;
                     case ASK:
-                        askQuestion(scanner, cards, mistakes);
+                        askQuestion();
                         break;
                     case EXIT:
-                        exitAndPossiblySaveToFile(cards, mistakes);
+                        exitAndPossiblySaveToFile();
                         return;
                     case LOG:
-                        logCards(scanner);
+                        logCards();
                         break;
                     case HARDEST_CARD:
-                        hardestCard(mistakes);
+                        hardestCard();
                         break;
                     case RESET_STATS:
-                        resetStats(mistakes);
+                        resetStats();
                         break;
                     default:
                 }
                 printMe(messages.getString("commandLine"));
             }
+        } catch (Exception e){
+            e.printStackTrace();
         }
     }
 
-    public void addCard(Scanner scanner, Map<String, String> cards) {
+    public void addCard() {
 
         printMe(messages.getString("addCard"));
-        String card = passInputAndLog(scanner).trim();
+        String card = passInputAndLog(scannerWrapper).trim();
 
         while (card.isEmpty() || cards.containsKey(card)) {
             if (card.isEmpty()) {
@@ -102,11 +105,11 @@ public class App {
                 printMe(messages.getString("cardDuplicate"), card);
                 return;
             }
-            card = passInputAndLog(scanner).trim();
+            card = passInputAndLog(scannerWrapper).trim();
         }
 
         printMe(messages.getString("addDefinition"));
-        String definition = passInputAndLog(scanner).trim();
+        String definition = passInputAndLog(scannerWrapper).trim();
 
         if (definition.isEmpty() || cards.containsValue(definition)) {
             if (definition.isEmpty()) {
@@ -115,16 +118,16 @@ public class App {
                 printMe(messages.getString("definitionDuplicate"), definition);
                 return;
             }
-            definition = passInputAndLog(scanner).trim();
+            definition = passInputAndLog(scannerWrapper).trim();
         }
         cards.put(card, definition);
         printMe(messages.getString("cardAdded"), card, definition);
     }
 
-    public void removeCard(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
+    public void removeCard() {
 
         printMe(messages.getString("removeCard"));
-        String card = passInputAndLog(scanner).trim();
+        String card = passInputAndLog(scannerWrapper).trim();
 
         if (card.isEmpty() || !cards.containsKey(card)) {
             if (card.isEmpty()) {
@@ -139,14 +142,14 @@ public class App {
         printMe(messages.getString("cardRemoved"));
     }
 
-    public void importCards(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
+    public void importCards() {
 
         printMe(messages.getString("importCard"));
-        String fileName = passInputAndLog(scanner).trim();
-        importCardsFromFile(fileName, cards, mistakes);
+        String fileName = passInputAndLog(scannerWrapper).trim();
+        importCardsFromFile(fileName);
     }
 
-    protected void importCardsFromFile(String fileName, Map<String, String> cards, Map<String, Integer> mistakes) {
+    protected void importCardsFromFile(String fileName) {
         File file = new File(fileName);
         int count = 0;
 
@@ -170,14 +173,14 @@ public class App {
 
     }
 
-    public void exportCards(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
+    public void exportCards() {
 
         printMe(messages.getString("exportCard"));
-        String fileName = passInputAndLog(scanner).trim();
-        exportToFile(fileName, cards, mistakes);
+        String fileName = passInputAndLog(scannerWrapper);
+        exportToFile(fileName);
     }
 
-    protected void exportToFile(String fileName, Map<String, String> cards, Map<String, Integer> mistakes) {
+    protected void exportToFile(String fileName) {
         File file = new File(fileName);
         int count = 0;
 
@@ -195,11 +198,11 @@ public class App {
         printMe(messages.getString("exportSuccess"), count);
     }
 
-    public void askQuestion(Scanner scanner, Map<String, String> cards, Map<String, Integer> mistakes) {
+    public void askQuestion() {
 
         printMe(messages.getString("askHowMany"));
 
-        String numberAsString = passInputAndLog(scanner).trim();
+        String numberAsString = passInputAndLog(scannerWrapper);
         int number = 0;
         try {
             number = Integer.parseInt(numberAsString);
@@ -223,7 +226,7 @@ public class App {
             String definitionEntry = cards.get(cardEntry);
 
             printMe(messages.getString("askQuestion"), cardEntry);
-            String answer = passInputAndLog(scanner).trim();
+            String answer = passInputAndLog(scannerWrapper).trim();
 
             if (definitionEntry.equalsIgnoreCase(answer)) {
                 printMe(messages.getString("askQuestionCorrect"));
@@ -244,7 +247,7 @@ public class App {
         }
     }
 
-    public void hardestCard(Map<String, Integer> mistakes) {
+    public void hardestCard() {
 
         int maxMistakes = mistakes.values().stream().max(Comparator.naturalOrder()).orElse(0);
 
@@ -263,10 +266,10 @@ public class App {
         }
     }
 
-    public void logCards(Scanner scanner) {
+    public void logCards() {
 
         printMe(messages.getString("log"));
-        String fileName = passInputAndLog(scanner).trim();
+        String fileName = passInputAndLog(scannerWrapper);
         logToFile(fileName);
     }
 
@@ -285,14 +288,14 @@ public class App {
         printMe(messages.getString("logSaved"));
     }
 
-    public void exitAndPossiblySaveToFile(Map<String, String> cards, Map<String, Integer> mistakes) {
+    public void exitAndPossiblySaveToFile() {
         printMe(messages.getString("exitMessage"));
         if (!pathToSave.isEmpty()) {
-            exportToFile(pathToSave, cards, mistakes);
+            exportToFile(pathToSave);
         }
     }
 
-    public void resetStats(Map<String, Integer> mistakes) {
+    public void resetStats() {
         mistakes.clear();
         printMe(messages.getString("resetStats"));
     }

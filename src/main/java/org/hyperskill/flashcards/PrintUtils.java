@@ -41,8 +41,8 @@ public class PrintUtils {
         lineCounter++;
     }
 
-    public static String passInputAndLog(Scanner scanner) {
-        String buffer = scanner.nextLine();
+    public static String passInputAndLog(ScannerWrapper scannerWrapper) {
+        String buffer = scannerWrapper.getString();
         log.add("> " + buffer);
         return buffer;
     }
