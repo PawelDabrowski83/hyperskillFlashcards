@@ -158,10 +158,11 @@ public class App {
                 String newLine = fileScanner.nextLine();
                 if (newLine.matches(CARD_DEFINITION_PATTERN.pattern())) {
                     Matcher matcher = CARD_DEFINITION_PATTERN.matcher(newLine);
-                    matcher.matches(); // necessary to check matcher.group
-                    cards.put(matcher.group(1), matcher.group(2));
-                    if (!"0".equalsIgnoreCase(matcher.group(3))) {
-                        mistakes.put(matcher.group(1), Integer.parseInt(matcher.group(3)));
+                    if(matcher.matches()){
+                        cards.put(matcher.group(1), matcher.group(2));
+                        if (!"0".equalsIgnoreCase(matcher.group(3))) {
+                            mistakes.put(matcher.group(1), Integer.parseInt(matcher.group(3)));
+                        }
                     }
                     count++;
                 }
