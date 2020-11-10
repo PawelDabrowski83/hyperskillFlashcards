@@ -1,6 +1,5 @@
-package org.hyperskill.flashcards;
+package org.hyperskill.flashcards.utils;
 
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ScannerWrapper implements AutoCloseable {
@@ -13,14 +12,6 @@ public class ScannerWrapper implements AutoCloseable {
 
     public String getString(){
         return scanner.nextLine().trim();
-    }
-
-    public int getInt() throws InputMismatchException {
-        return scanner.nextInt();
-    }
-
-    public double getDouble() throws InputMismatchException{
-        return scanner.nextDouble();
     }
 
     public boolean hasNextLine(){

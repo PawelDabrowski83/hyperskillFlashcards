@@ -1,8 +1,7 @@
-package org.hyperskill.flashcards;
+package org.hyperskill.flashcards.utils;
 
-import java.util.Scanner;
-import static org.hyperskill.flashcards.SimpleLogger.log;
-import static org.hyperskill.flashcards.SimpleLogger.lineCounter;
+import static org.hyperskill.flashcards.utils.SimpleLogger.log;
+import static org.hyperskill.flashcards.utils.SimpleLogger.lineCounter;
 
 public class PrintUtils {
 

@@ -1,5 +1,10 @@
 package org.hyperskill.flashcards;
 
+import org.hyperskill.flashcards.configuration.ActionsEnum;
+import org.hyperskill.flashcards.configuration.CommandLineConfigurator;
+import org.hyperskill.flashcards.configuration.LocaleConfigurator;
+import org.hyperskill.flashcards.utils.ScannerWrapper;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,17 +12,17 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import static org.hyperskill.flashcards.PatternConfiguration.*;
-import static org.hyperskill.flashcards.PatternConfiguration.CARD_DEFINITION_PATTERN;
-import static org.hyperskill.flashcards.PrintUtils.passInputAndLog;
-import static org.hyperskill.flashcards.PrintUtils.printMe;
-import static org.hyperskill.flashcards.SimpleLogger.log;
-import static org.hyperskill.flashcards.SimpleLogger.pathToSave;
+import static org.hyperskill.flashcards.configuration.PatternConfiguration.CARD_DEFINITION_PATTERN;
+import static org.hyperskill.flashcards.utils.PrintUtils.passInputAndLog;
+import static org.hyperskill.flashcards.utils.PrintUtils.printMe;
+import static org.hyperskill.flashcards.utils.SimpleLogger.log;
+import static org.hyperskill.flashcards.utils.SimpleLogger.pathToSave;
 
 public class App {
 
     protected static ResourceBundle messages;
     protected final LocaleConfigurator localeConfigurator = new LocaleConfigurator();
+    protected final CommandLineConfigurator commandLineConfigurator;
     private final Map<String, ActionsEnum> translateActions;
     private final Map<String, String> cards = new HashMap<>();
     private final Map<String, Integer> mistakes = new HashMap<>();
@@ -27,20 +32,11 @@ public class App {
         messages = localeConfigurator.setLocale(args);
         translateActions = localeConfigurator.getTranslatedMenuItems(messages);
         scannerWrapper = new ScannerWrapper(new Scanner(System.in));
+        commandLineConfigurator = new CommandLineConfigurator();
     }
 
     public void play(String[] args) {
-
-        if (args.length > 0 && args.length % 2 == 0) {
-            for (int i = 0; i < args.length; i += 2) {
-                if (IMPORT_COMMAND_PATTERN.matcher(args[i]).matches() && FILE_PATTERN.matcher(args[i + 1]).matches()) {
-                    importCardsFromFile(args[i + 1]);
-                }
-                if (EXPORT_COMMAND_PATTERN.matcher(args[i]).matches() && FILE_PATTERN.matcher(args[i + 1]).matches()) {
-                    pathToSave = args[i + 1];
-                }
-            }
-        }
+        commandLineConfigurator.configure(args, this);
         acceptCommands();
     }
 
@@ -48,49 +44,37 @@ public class App {
         printMe(messages.getString("commandLine"));
 
         try (scannerWrapper) {
-            String input;
             while (scannerWrapper.hasNextLine()) {
-                input = passInputAndLog(scannerWrapper).toLowerCase();
-                ActionsEnum yourChoice = ActionsEnum.DEFAULT;
-                if (translateActions.containsKey(input)) {
-                    yourChoice = translateActions.get(input);
-                }
+                ActionsEnum yourChoice = getNextUserAction();
 
                 switch (yourChoice) {
-                    case ADD:
-                        addCard();
-                        break;
-                    case REMOVE:
-                        removeCard();
-                        break;
-                    case IMPORT:
-                        importCards();
-                        break;
-                    case EXPORT:
-                        exportCards();
-                        break;
-                    case ASK:
-                        askQuestion();
-                        break;
-                    case EXIT:
+                    case ADD -> addCard();
+                    case REMOVE -> removeCard();
+                    case IMPORT -> importCards();
+                    case EXPORT -> exportCards();
+                    case ASK -> askQuestion();
+                    case EXIT -> {
                         exitAndPossiblySaveToFile();
                         return;
-                    case LOG:
-                        logCards();
-                        break;
-                    case HARDEST_CARD:
-                        hardestCard();
-                        break;
-                    case RESET_STATS:
-                        resetStats();
-                        break;
-                    default:
+                    }
+                    case LOG -> logCards();
+                    case HARDEST_CARD -> hardestCard();
+                    case RESET_STATS -> resetStats();
                 }
                 printMe(messages.getString("commandLine"));
             }
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private ActionsEnum getNextUserAction() {
+        String input = passInputAndLog(scannerWrapper).toLowerCase();
+        ActionsEnum yourChoice = ActionsEnum.DEFAULT;
+        if (translateActions.containsKey(input)) {
+            yourChoice = translateActions.get(input);
+        }
+        return yourChoice;
     }
 
     public void addCard() {
@@ -149,7 +133,7 @@ public class App {
         importCardsFromFile(fileName);
     }
 
-    protected void importCardsFromFile(String fileName) {
+    public void importCardsFromFile(String fileName) {
         File file = new File(fileName);
         int count = 0;
 
@@ -158,10 +142,11 @@ public class App {
                 String newLine = fileScanner.nextLine();
                 if (newLine.matches(CARD_DEFINITION_PATTERN.pattern())) {
                     Matcher matcher = CARD_DEFINITION_PATTERN.matcher(newLine);
-                    matcher.matches(); // necessary to check matcher.group
-                    cards.put(matcher.group(1), matcher.group(2));
-                    if (!"0".equalsIgnoreCase(matcher.group(3))) {
-                        mistakes.put(matcher.group(1), Integer.parseInt(matcher.group(3)));
+                    if(matcher.matches()){
+                        cards.put(matcher.group(1), matcher.group(2));
+                        if (!"0".equalsIgnoreCase(matcher.group(3))) {
+                            mistakes.put(matcher.group(1), Integer.parseInt(matcher.group(3)));
+                        }
                     }
                     count++;
                 }
