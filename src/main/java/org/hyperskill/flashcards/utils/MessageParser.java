@@ -2,8 +2,9 @@ package org.hyperskill.flashcards.utils;
 
 import static org.hyperskill.flashcards.utils.SimpleLogger.log;
 import static org.hyperskill.flashcards.utils.SimpleLogger.lineCounter;
+import static org.hyperskill.flashcards.utils.MessagePrinter.printFinalize;
 
-public class PrintUtils {
+public class MessageParser {
 
     public static void printMe(String str) {
         String toPrint;
@@ -32,17 +33,5 @@ public class PrintUtils {
     public static void printMe(String str1, String str2, int n) {
         String toPrint = lineCounter + " | " + String.format(str1, str2, n);
         printFinalize(toPrint);
-    }
-
-    public static void printFinalize (String str) {
-        log.add(str);
-        System.out.println(str);
-        lineCounter++;
-    }
-
-    public static String passInputAndLog(ScannerWrapper scannerWrapper) {
-        String buffer = scannerWrapper.getString();
-        log.add("> " + buffer);
-        return buffer;
     }
 }

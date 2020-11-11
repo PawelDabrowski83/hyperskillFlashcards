@@ -13,8 +13,8 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static org.hyperskill.flashcards.configuration.PatternConfiguration.CARD_DEFINITION_PATTERN;
-import static org.hyperskill.flashcards.utils.PrintUtils.passInputAndLog;
-import static org.hyperskill.flashcards.utils.PrintUtils.printMe;
+import static org.hyperskill.flashcards.utils.ScannerLogger.passInputAndLog;
+import static org.hyperskill.flashcards.utils.MessageParser.printMe;
 import static org.hyperskill.flashcards.utils.SimpleLogger.log;
 import static org.hyperskill.flashcards.utils.SimpleLogger.pathToSave;
 
