@@ -5,7 +5,7 @@ import static org.hyperskill.flashcards.utils.SimpleLogger.log;
 
 public class MessagePrinter {
 
-    public static void printFinalize (String str) {
+    public void printFinalize (String str) {
         log.add(str);
         System.out.println(str);
         lineCounter++;
