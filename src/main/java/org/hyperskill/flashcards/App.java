@@ -3,6 +3,8 @@ package org.hyperskill.flashcards;
 import org.hyperskill.flashcards.configuration.ActionsEnum;
 import org.hyperskill.flashcards.configuration.CommandLineConfigurator;
 import org.hyperskill.flashcards.configuration.LocaleConfigurator;
+import org.hyperskill.flashcards.utils.MessageParser;
+import org.hyperskill.flashcards.utils.MessagePrinter;
 import org.hyperskill.flashcards.utils.ScannerWrapper;
 
 import java.io.File;
@@ -14,7 +16,6 @@ import java.util.stream.Collectors;
 
 import static org.hyperskill.flashcards.configuration.PatternConfiguration.CARD_DEFINITION_PATTERN;
 import static org.hyperskill.flashcards.utils.ScannerLogger.passInputAndLog;
-import static org.hyperskill.flashcards.utils.MessageParser.printMe;
 import static org.hyperskill.flashcards.utils.SimpleLogger.log;
 import static org.hyperskill.flashcards.utils.SimpleLogger.pathToSave;
 
@@ -23,6 +24,7 @@ public class App {
     protected static ResourceBundle messages;
     protected final LocaleConfigurator localeConfigurator = new LocaleConfigurator();
     protected final CommandLineConfigurator commandLineConfigurator;
+    protected final MessageParser messageParser = new MessageParser(new MessagePrinter());
     private final Map<String, ActionsEnum> translateActions;
     private final Map<String, String> cards = new HashMap<>();
     private final Map<String, Integer> mistakes = new HashMap<>();
@@ -41,7 +43,7 @@ public class App {
     }
 
     protected void acceptCommands(){
-        printMe(messages.getString("commandLine"));
+        messageParser.printMe(messages.getString("commandLine"));
 
         try (scannerWrapper) {
             while (scannerWrapper.hasNextLine()) {
@@ -61,7 +63,7 @@ public class App {
                     case HARDEST_CARD -> hardestCard();
                     case RESET_STATS -> resetStats();
                 }
-                printMe(messages.getString("commandLine"));
+                messageParser.printMe(messages.getString("commandLine"));
             }
         } catch (Exception e){
             e.printStackTrace();
@@ -79,56 +81,56 @@ public class App {
 
     public void addCard() {
 
-        printMe(messages.getString("addCard"));
+        messageParser.printMe(messages.getString("addCard"));
         String card = passInputAndLog(scannerWrapper).trim();
 
         while (card.isEmpty() || cards.containsKey(card)) {
             if (card.isEmpty()) {
-                printMe(messages.getString("addCard"));
+                messageParser.printMe(messages.getString("addCard"));
             } else {
-                printMe(messages.getString("cardDuplicate"), card);
+                messageParser.printMe(messages.getString("cardDuplicate"), card);
                 return;
             }
             card = passInputAndLog(scannerWrapper).trim();
         }
 
-        printMe(messages.getString("addDefinition"));
+        messageParser.printMe(messages.getString("addDefinition"));
         String definition = passInputAndLog(scannerWrapper).trim();
 
         if (definition.isEmpty() || cards.containsValue(definition)) {
             if (definition.isEmpty()) {
-                printMe(messages.getString("addDefinition"));
+                messageParser.printMe(messages.getString("addDefinition"));
             } else {
-                printMe(messages.getString("definitionDuplicate"), definition);
+                messageParser.printMe(messages.getString("definitionDuplicate"), definition);
                 return;
             }
             definition = passInputAndLog(scannerWrapper).trim();
         }
         cards.put(card, definition);
-        printMe(messages.getString("cardAdded"), card, definition);
+        messageParser.printMe(messages.getString("cardAdded"), card, definition);
     }
 
     public void removeCard() {
 
-        printMe(messages.getString("removeCard"));
+        messageParser.printMe(messages.getString("removeCard"));
         String card = passInputAndLog(scannerWrapper).trim();
 
         if (card.isEmpty() || !cards.containsKey(card)) {
             if (card.isEmpty()) {
-                printMe(messages.getString("removeCard"));
+                messageParser.printMe(messages.getString("removeCard"));
             } else {
-                printMe(messages.getString("cardNotExisting"), card);
+                messageParser.printMe(messages.getString("cardNotExisting"), card);
                 return;
             }
         }
         cards.remove(card);
         mistakes.remove(card);
-        printMe(messages.getString("cardRemoved"));
+        messageParser.printMe(messages.getString("cardRemoved"));
     }
 
     public void importCards() {
 
-        printMe(messages.getString("importCard"));
+        messageParser.printMe(messages.getString("importCard"));
         String fileName = passInputAndLog(scannerWrapper).trim();
         importCardsFromFile(fileName);
     }
@@ -151,16 +153,16 @@ public class App {
                     count++;
                 }
             }
-            printMe(messages.getString("importSuccess"), count);
+            messageParser.printMe(messages.getString("importSuccess"), count);
         } catch (IOException e) {
-            printMe(messages.getString("fileNotFound"));
+            messageParser.printMe(messages.getString("fileNotFound"));
         }
 
     }
 
     public void exportCards() {
 
-        printMe(messages.getString("exportCard"));
+        messageParser.printMe(messages.getString("exportCard"));
         String fileName = passInputAndLog(scannerWrapper);
         exportToFile(fileName);
     }
@@ -177,22 +179,22 @@ public class App {
                 count++;
             }
         } catch (IOException e) {
-            printMe(messages.getString("fileNotFound"));
+            messageParser.printMe(messages.getString("fileNotFound"));
             return;
         }
-        printMe(messages.getString("exportSuccess"), count);
+        messageParser.printMe(messages.getString("exportSuccess"), count);
     }
 
     public void askQuestion() {
 
-        printMe(messages.getString("askHowMany"));
+        messageParser.printMe(messages.getString("askHowMany"));
 
         String numberAsString = passInputAndLog(scannerWrapper);
         int number = 0;
         try {
             number = Integer.parseInt(numberAsString);
         } catch (NumberFormatException e) {
-            printMe(messages.getString("numberFormatException"), numberAsString);
+            messageParser.printMe(messages.getString("numberFormatException"), numberAsString);
         }
 
         Map<Integer, String> auxilaryMap = new HashMap<>();
@@ -210,11 +212,11 @@ public class App {
             String cardEntry = auxilaryMap.get(randomized);
             String definitionEntry = cards.get(cardEntry);
 
-            printMe(messages.getString("askQuestion"), cardEntry);
+            messageParser.printMe(messages.getString("askQuestion"), cardEntry);
             String answer = passInputAndLog(scannerWrapper).trim();
 
             if (definitionEntry.equalsIgnoreCase(answer)) {
-                printMe(messages.getString("askQuestionCorrect"));
+                messageParser.printMe(messages.getString("askQuestionCorrect"));
             } else {
                 mistakes.put(cardEntry, (mistakes.getOrDefault(cardEntry, 0) + 1));
                 if (cards.containsValue(answer)) {
@@ -222,9 +224,9 @@ public class App {
                             .filter(n -> n.getValue().equalsIgnoreCase(answer))
                             .map(Map.Entry::getKey)
                             .collect(Collectors.joining());
-                    printMe(messages.getString("askQuestionMistakenWithAnother"), definitionEntry, cardFoundByDefinition);
+                    messageParser.printMe(messages.getString("askQuestionMistakenWithAnother"), definitionEntry, cardFoundByDefinition);
                 } else {
-                    printMe(messages.getString("askQuestionWrong"), definitionEntry);
+                    messageParser.printMe(messages.getString("askQuestionWrong"), definitionEntry);
                 }
             }
             number--;
@@ -237,23 +239,23 @@ public class App {
         int maxMistakes = mistakes.values().stream().max(Comparator.naturalOrder()).orElse(0);
 
         if (maxMistakes == 0) {
-            printMe(messages.getString("hardestNone"));
+            messageParser.printMe(messages.getString("hardestNone"));
         } else {
             Map<String, Integer> hardestCards = mistakes.entrySet().stream()
                     .filter(e -> e.getValue().equals(maxMistakes))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             if (hardestCards.size() > 1) {
                 String hardestCardNames = String.join("\", \"", hardestCards.keySet());
-                printMe(messages.getString("hardestCardManyOfThem"), hardestCardNames, maxMistakes);
+                messageParser.printMe(messages.getString("hardestCardManyOfThem"), hardestCardNames, maxMistakes);
             } else {
-                printMe(messages.getString("hardestCard"), hardestCards.keySet().stream().findFirst().orElse(""), maxMistakes);
+                messageParser.printMe(messages.getString("hardestCard"), hardestCards.keySet().stream().findFirst().orElse(""), maxMistakes);
             }
         }
     }
 
     public void logCards() {
 
-        printMe(messages.getString("log"));
+        messageParser.printMe(messages.getString("log"));
         String fileName = passInputAndLog(scannerWrapper);
         logToFile(fileName);
     }
@@ -267,14 +269,14 @@ public class App {
                 fileWriter.flush();
             }
         } catch (IOException e) {
-            printMe(messages.getString("fileNotFound"));
+            messageParser.printMe(messages.getString("fileNotFound"));
             return;
         }
-        printMe(messages.getString("logSaved"));
+        messageParser.printMe(messages.getString("logSaved"));
     }
 
     public void exitAndPossiblySaveToFile() {
-        printMe(messages.getString("exitMessage"));
+        messageParser.printMe(messages.getString("exitMessage"));
         if (!pathToSave.isEmpty()) {
             exportToFile(pathToSave);
         }
@@ -282,7 +284,7 @@ public class App {
 
     public void resetStats() {
         mistakes.clear();
-        printMe(messages.getString("resetStats"));
+        messageParser.printMe(messages.getString("resetStats"));
     }
 
 }
